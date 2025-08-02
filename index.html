@@ -1,1 +1,214 @@
-429: Too Many Requests
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Terminal Hacker Fake 1000</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+  
+  body {
+    background-color: #000;
+    color: #00ff00;
+    font-family: 'Share Tech Mono', monospace;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  #terminal {
+    background: #0d0d0d;
+    width: 700px;
+    max-width: 95vw;
+    height: 450px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px #00ff00;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+  #output {
+    flex-grow: 1;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    padding-right: 10px;
+    margin-bottom: 10px;
+  }
+  #input-line {
+    display: flex;
+    align-items: center;
+  }
+  .prompt {
+    user-select: none;
+    margin-right: 10px;
+  }
+  #input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    color: #00ff00;
+    font-family: inherit;
+    font-size: 1.1rem;
+    outline: none;
+  }
+  /* Cursor piscando */
+  #input:focus {
+    caret-color: #00ff00;
+  }
+  /* Scrollbar customizado */
+  #output::-webkit-scrollbar {
+    width: 8px;
+  }
+  #output::-webkit-scrollbar-thumb {
+    background-color: #00ff00aa;
+    border-radius: 4px;
+  }
+  #output::-webkit-scrollbar-track {
+    background: #000;
+  }
+</style>
+</head>
+<body>
+
+<div id="terminal" role="main" aria-label="Terminal Hacker Fake">
+  <div id="output" aria-live="polite" aria-atomic="false"></div>
+  <div id="input-line">
+    <span class="prompt">user@hacker:~$</span>
+    <input type="text" id="input" autocomplete="off" spellcheck="false" autofocus aria-label="Terminal input" />
+  </div>
+</div>
+
+<script>
+(() => {
+  const input = document.getElementById('input');
+  const output = document.getElementById('output');
+  const promptText = 'user@hacker:~$ ';
+
+  const delay = ms => new Promise(res => setTimeout(res, ms));
+
+  // Função para digitar texto na tela simulando digitação
+  async function typeText(text, speed = 30) {
+    for (let i = 0; i < text.length; i++) {
+      output.textContent += text[i];
+      output.scrollTop = output.scrollHeight;
+      await delay(speed);
+    }
+    output.textContent += '\n';
+    output.scrollTop = output.scrollHeight;
+  }
+
+  // Comandos que o terminal fake aceita
+  const commands = {
+    help: async () => {
+      const helpText =
+`Comandos disponíveis:
+help       - Mostra esta ajuda
+date       - Mostra a data e hora atuais
+hack       - Simula ataque hacker
+clear      - Limpa a tela
+whoami     - Mostra o usuário atual
+ls         - Lista arquivos e diretórios
+ping       - Simula um ping
+sudo       - ??? Tente usar sudo...`;
+      await typeText(helpText);
+    },
+
+    date: async () => {
+      await typeText(new Date().toString());
+    },
+
+    hack: async () => {
+      const lines = [
+        '[Iniciando ataque hacker...]',
+        'Conectando aos servidores...',
+        'Bypassing firewall...',
+        'Extraindo informações sensíveis...',
+        'Acessando banco de dados ultra-secreto...',
+        'Download dos dados iniciado...',
+        'Download em andamento: [##########] 100%',
+        'Ataque concluído com sucesso!',
+        'Encerrando conexão...'
+      ];
+      for (const line of lines) {
+        await typeText(line, 50);
+      }
+    },
+
+    clear: async () => {
+      output.textContent = '';
+    },
+
+    whoami: async () => {
+      await typeText('user');
+    },
+
+    ls: async () => {
+      const files = [
+        'secret.txt',
+        'passwords.csv',
+        'backup.zip',
+        'hacktool.exe',
+        'notes.md'
+      ];
+      await typeText(files.join('  '));
+    },
+
+    ping: async () => {
+      const pings = [
+        'PING hacker.net (192.168.0.1): 56 data bytes',
+        '64 bytes from 192.168.0.1: icmp_seq=1 ttl=64 time=0.324 ms',
+        '64 bytes from 192.168.0.1: icmp_seq=2 ttl=64 time=0.300 ms',
+        '64 bytes from 192.168.0.1: icmp_seq=3 ttl=64 time=0.310 ms',
+        '',
+        '--- hacker.net ping statistics ---',
+        '3 packets transmitted, 3 packets received, 0.0% packet loss',
+        'round-trip min/avg/max = 0.300/0.311/0.324 ms'
+      ];
+      for (const line of pings) {
+        await typeText(line, 40);
+      }
+    },
+
+    sudo: async () => {
+      await typeText('Permission denied: Você não tem acesso root.');
+    }
+  };
+
+  // Função principal que processa comandos digitados
+  async function runCommand(cmd) {
+    cmd = cmd.trim().toLowerCase();
+    output.textContent += promptText + cmd + '\n';
+    if (commands[cmd]) {
+      await commands[cmd]();
+    } else if (cmd === '') {
+      // Nada faz se só apertar enter
+    } else {
+      await typeText(`Comando não encontrado: ${cmd}\nDigite "help" para ajuda.`);
+    }
+  }
+
+  input.addEventListener('keydown', async e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      input.disabled = true;
+      await runCommand(input.value);
+      input.value = '';
+      input.disabled = false;
+      input.focus();
+    }
+  });
+
+  // Mensagem de boas vindas com efeito de digitação
+  async function welcomeMessage() {
+    await typeText('Bem-vindo ao Terminal Hacker Fake 1000! Digite "help" para comandos.', 40);
+  }
+
+  welcomeMessage();
+})();
+</script>
+
+</body>
+</html>
